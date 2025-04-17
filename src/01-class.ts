@@ -12,7 +12,7 @@ console.log({ date });
 console.log({ date2 });
 
 /* Las clases vienen soportadas en es6 */
-class MyDate {
+export class MyDate {
   /* Para crear propiedades dentro de una clase debemos hacerlo de la
   siguiente forma: */
   year: number = 0;
