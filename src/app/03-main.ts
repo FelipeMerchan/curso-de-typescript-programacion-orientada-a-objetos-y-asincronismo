@@ -34,4 +34,3 @@ import { ProductHttpService } from "./service/product-http.service";
     console.error(error);
   }
 })();
-
