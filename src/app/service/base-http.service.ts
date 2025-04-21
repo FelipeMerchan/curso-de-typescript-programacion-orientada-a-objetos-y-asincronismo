@@ -1,17 +1,33 @@
 import axios from "axios";
 import { Category } from "../models/category.model";
 import { Product } from "../models/product.model";
+import { UpdateProductDto } from "../dtos/product.dto";
 
 /* En una clase también podemos enviar el tipo de forma
 dinámica */
 export class BaseHttpService<TypeClass> {
   /* private data: TypeClass[] = []; */
   constructor(
-    private url: string
+    protected url: string
   ) {}
 
   async getAll(): Promise<TypeClass[]> {
     const { data } = await axios.get<TypeClass[]>(this.url);
+    return data;
+  }
+
+  /* Podemos enviar genéricos a métodos de la clase, que sean diferentes al genérico
+  que recibe la clase (TypeClass) solo debemos tener cuidado con no nombrar con el mismo
+  nombre 2 genéricos diferentes (el genérico del método y el genérico de la clase)
+  porque se pueden confundir, los genéricos tienen algo como un scope, es decir
+  que el genérico ID existirá dentro del método update, pero en un scope superior está
+  el genérico TypeClass, si nombramos con el mismo nombre ambos genéricos el que usará
+  TypeScript para el método update será el que reciba update y no usará el que reciba la clase
+  porque dentro del método prevalece el genérico del scope de update. */
+  async update<ID, DTO>(id: ID, changes: DTO) {
+    /* Podemos usar el genérico TypeClass de la clase dentro de un método: */
+    /* const array: TypeClass[] = []; */
+    const { data } = await axios.put(`${this.url}/${id}`, changes);
     return data;
   }
 }
@@ -33,6 +49,9 @@ getAll(): TypeClass[] | Promise<TypeClass[]> {
   const productService = new BaseHttpService<Product>(url1);
   const rta = await productService.getAll(); // <=  BaseHttpService<Product>.getAll(): Promise<Product[]>
   console.log(rta);
+  productService.update<Product['id'], UpdateProductDto>(1, {
+    title: 'Asa',
+  });
 
   const url2 = 'https://api.escuelajs.co/api/v1/categories';
   /* El poder de los genéricos es que podemos construir de forma genérica porque
@@ -43,6 +62,9 @@ getAll(): TypeClass[] | Promise<TypeClass[]> {
   const categoryService = new BaseHttpService<Category>(url2);
   const rtaCategory = await categoryService.getAll(); // <=  BaseHttpService<Category>.getAll(): Promise<Category[]>
   console.log(rtaCategory);
+  /* categoryService.update<Category['id'], UpdateCategoryDto>(1, {
+    title: 'Asa',
+  }); */
 })();
 /*
 export class BaseHttpService<TypeClass> {
